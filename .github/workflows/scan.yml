@@ -5,7 +5,13 @@ on:
     # 每5分钟；UTC 13-21 覆盖美东盘中(含夏令/冬令时冗余)。
     # 脚本内部再按美东 10:05-15:30 精确门控，窗口外的运行会秒退。
     - cron: '*/5 13-21 * * 1-5'
-  workflow_dispatch: {}   # 允许在 Actions 页面手动点“Run workflow”测试
+  workflow_dispatch:      # 允许在 Actions 页面手动点“Run workflow”
+    inputs:
+      mode:
+        description: '运行模式：scan=正常扫描，selftest=只发一条测试飞机确认连通'
+        type: choice
+        default: scan
+        options: [scan, selftest]
 
 permissions:
   contents: write          # 允许把去重记录 state/ 提交回仓库
@@ -35,7 +41,7 @@ jobs:
           PORTFOLIO_VALUE_USD: ${{ vars.PORTFOLIO_VALUE_USD }}
           MAX_TRADE_SIZE_USD: ${{ vars.MAX_TRADE_SIZE_USD }}
           MAX_RISK_PER_TRADE_PCT: ${{ vars.MAX_RISK_PER_TRADE_PCT }}
-        run: python scan.py
+        run: python scan.py ${{ github.event.inputs.mode == 'selftest' && '--selftest' || '' }}
 
       - name: 保存去重记录
         run: |

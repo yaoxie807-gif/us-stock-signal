@@ -105,7 +105,16 @@ def evaluate(symbol: str, rules: dict) -> dict | None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--selftest", action="store_true",
+                        help="只从云端发一条测试飞机确认连通，不扫描、不发信号")
     args = parser.parse_args()
+
+    if args.selftest:
+        notify("☑️ 云端连通测试",
+               "这是 GitHub 云端发出的测试消息，不是交易信号。\n收到它说明配置正确，周一盘中会自动发真实信号。",
+               "default")
+        print("selftest 飞机已发送")
+        return 0
 
     now = datetime.now(ET)
     if not args.dry_run and market_phase(now) != PHASE_OK:
