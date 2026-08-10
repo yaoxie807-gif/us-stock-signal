@@ -1,4 +1,4 @@
-"""ntfy（主）+ Telegram（可选备份）手机推送，失败只记日志。"""
+"""ntfy（主）手机推送；未配置 ntfy 时才退回 Telegram。"""
 from __future__ import annotations
 
 import os
@@ -42,6 +42,9 @@ def notify(title: str, body: str, priority: str = "default") -> bool:
             delivered = True
         except Exception as exc:
             _log_error(exc)
+
+    if notify_url:
+        return delivered
 
     if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID:
         try:
