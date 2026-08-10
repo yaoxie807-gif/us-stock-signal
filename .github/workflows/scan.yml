@@ -1,21 +1,17 @@
-name: 美股信号扫描
+﻿name: 缇庤偂淇″彿鎵弿
 
 on:
-  schedule:
-    # 每5分钟；UTC 13-21 覆盖美东盘中(含夏令/冬令时冗余)。
-    # 脚本内部再按美东 10:05-15:30 精确门控，窗口外的运行会秒退。
-    - cron: '*/5 13-21 * * 1-5'
-  workflow_dispatch:      # 允许在 Actions 页面手动点“Run workflow”
-    inputs:
+# DISABLED: schedule:
+    # 姣?鍒嗛挓锛沀TC 13-21 瑕嗙洊缇庝笢鐩樹腑(鍚浠?鍐护鏃跺啑浣?銆?    # 鑴氭湰鍐呴儴鍐嶆寜缇庝笢 10:05-15:30 绮剧‘闂ㄦ帶锛岀獥鍙ｅ鐨勮繍琛屼細绉掗€€銆?    - cron: '*/5 13-21 * * 1-5'
+# DISABLED: workflow_dispatch:      # 鍏佽鍦?Actions 椤甸潰鎵嬪姩鐐光€淩un workflow鈥?    inputs:
       mode:
-        description: '运行模式：scan=正常扫描，selftest=只发一条测试 Telegram 确认连通'
+        description: '杩愯妯″紡锛歴can=姝ｅ父鎵弿锛宻elftest=鍙彂涓€鏉℃祴璇?Telegram 纭杩為€?
         type: choice
         default: scan
         options: [scan, selftest]
 
 permissions:
-  contents: write          # 允许把去重记录 state/ 提交回仓库
-
+  contents: write          # 鍏佽鎶婂幓閲嶈褰?state/ 鎻愪氦鍥炰粨搴?
 concurrency:
   group: scan
   cancel-in-progress: false
@@ -33,25 +29,25 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - name: 扫描并发 Telegram
+      - name: 鎵弿骞跺彂 Telegram
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          # 下面三个可选：在仓库 Settings → Variables 里设，不设就用脚本默认(25000/2500/1%)
+          # 涓嬮潰涓変釜鍙€夛細鍦ㄤ粨搴?Settings 鈫?Variables 閲岃锛屼笉璁惧氨鐢ㄨ剼鏈粯璁?25000/2500/1%)
           PORTFOLIO_VALUE_USD: ${{ vars.PORTFOLIO_VALUE_USD }}
           MAX_TRADE_SIZE_USD: ${{ vars.MAX_TRADE_SIZE_USD }}
           MAX_RISK_PER_TRADE_PCT: ${{ vars.MAX_RISK_PER_TRADE_PCT }}
         run: python scan.py ${{ github.event.inputs.mode == 'selftest' && '--selftest' || '' }}
 
-      - name: 保存去重记录
+      - name: 淇濆瓨鍘婚噸璁板綍
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add state/ 2>/dev/null || true
           if ! git diff --cached --quiet; then
-            git commit -m "state: 更新当日已发信号 [skip ci]"
+            git commit -m "state: 鏇存柊褰撴棩宸插彂淇″彿 [skip ci]"
             git pull --rebase --autostash || true
             git push
           else
-            echo "去重记录无变化，跳过提交"
+            echo "鍘婚噸璁板綍鏃犲彉鍖栵紝璺宠繃鎻愪氦"
           fi
