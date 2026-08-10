@@ -112,13 +112,13 @@ def main() -> int:
     if args.selftest:
         delivered = notify(
             "云端连通测试",
-            "这是 GitHub 云端发出的测试消息，不是交易信号。\n收到它说明 ntfy/Telegram 配置正确，周一盘中会自动发真实信号。",
+            "这是 GitHub 云端发出的测试消息，不是交易信号。\n收到它说明 Telegram 配置正确，周一盘中会自动发真实信号。",
             "default",
         )
         if not delivered:
-            print("selftest 失败：没有可用推送通道，或推送接口返回错误")
+            print("selftest 失败：没有可用 Telegram 通道，或 Telegram 接口返回错误")
             return 1
-        print("selftest 手机推送已发送")
+        print("selftest Telegram 已发送")
         return 0
 
     now = datetime.now(ET)

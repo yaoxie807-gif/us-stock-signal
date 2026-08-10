@@ -1,6 +1,6 @@
 # 美股信号云端
 
-在 **GitHub Actions 云端**每5分钟自动扫描 S&P 500，符合规则就发 **ntfy 手机推送**：
+在 **GitHub Actions 云端**每5分钟自动扫描 S&P 500，符合规则就发 **Telegram 手机推送**：
 买入标的、限价、止损、建议股数和风险金额。
 
 这是当前唯一应保留的 S&P 500 纯信号扫描器。`D:\炒股工具\股票AI-IBKR脚本` 里的
@@ -28,32 +28,22 @@ git push -u origin main
 
 （本地已经 `git init` 并提交好了，直接 push 即可。）
 
-### 2. 填 ntfy 密钥（Secrets）
-仓库页 **Settings → Secrets and variables → Actions → New repository secret**，加一个：
-
-| Name | Value |
-|---|---|
-| `NTFY_TOPIC` | 你的 ntfy topic 名称 |
-
-如果你想用完整 URL，也可以不用 `NTFY_TOPIC`，改加：
-
-| Name | Value |
-|---|---|
-| `NOTIFY_URL` | 例如 `https://ntfy.sh/你的topic` |
-
-Telegram 仍然保留为可选备份。需要时再加：
+### 2. 填 Telegram 密钥（Secrets）
+仓库页 **Settings → Secrets and variables → Actions → New repository secret**，加两个：
 
 | Name | Value |
 |---|---|
 | `TELEGRAM_BOT_TOKEN` | Telegram 机器人 token |
 | `TELEGRAM_CHAT_ID` | Telegram chat id |
 
+本项目不使用 ntfy。不要配置 `NTFY_TOPIC` 或 `NOTIFY_URL`。
+
 （可选）**Variables** 里可设 `PORTFOLIO_VALUE_USD` / `MAX_TRADE_SIZE_USD` / `MAX_RISK_PER_TRADE_PCT`，
 不设就用默认 `25000 / 2500 / 1%`（只影响信号里给的“股数”）。
 
 ### 3. 测试
 仓库页 **Actions → 美股信号扫描 → Run workflow**，`mode` 选 `selftest` 手动跑一次，
-看手机是否收到 ntfy 测试推送、日志有没有报错。
+看 Telegram 是否收到测试推送、日志有没有报错。
 （美股休市时它会“非入场时段，跳过”，属正常。）
 
 ---
@@ -76,5 +66,5 @@ GitHub Actions 免费额度：**公开仓库无限量；私有仓库每月 2000 
 ## 本地测试
 ```bash
 pip install -r requirements.txt
-python scan.py --dry-run     # 只打印，不发手机推送
+python scan.py --dry-run     # 只打印，不发 Telegram
 ```
