@@ -110,10 +110,15 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.selftest:
-        notify("☑️ 云端连通测试",
-               "这是 GitHub 云端发出的测试消息，不是交易信号。\n收到它说明配置正确，周一盘中会自动发真实信号。",
-               "default")
-        print("selftest 飞机已发送")
+        delivered = notify(
+            "云端连通测试",
+            "这是 GitHub 云端发出的测试消息，不是交易信号。\n收到它说明 ntfy/Telegram 配置正确，周一盘中会自动发真实信号。",
+            "default",
+        )
+        if not delivered:
+            print("selftest 失败：没有可用推送通道，或推送接口返回错误")
+            return 1
+        print("selftest 手机推送已发送")
         return 0
 
     now = datetime.now(ET)
@@ -148,7 +153,7 @@ def main() -> int:
                 f"现价 {sig['price']} · 数据 yfinance(约延迟15分) · 下单前核对券商实时价")
         print(f"  [信号] {sym}: 限价{sig['entry_limit']} 止损{sig['stop']} {sig['size']}股")
         if not args.dry_run:
-            notify(f"📈 买入信号 {sym}", body, "high")
+            notify(f"买入信号 {sym}", body, "high")
         sent.add(sym)
         new_signals += 1
 
