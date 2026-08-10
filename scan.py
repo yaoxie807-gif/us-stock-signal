@@ -1,12 +1,12 @@
-"""云端信号扫描：筛选当日在动的股 → 逐个按规则判断 → 有新信号发飞机。
+"""云端信号扫描：筛选当日在动的股 → 逐个按规则判断 → 有新信号发 Telegram。
 
 一次运行 = 完整一轮，无需本地文件（适合 GitHub Actions 用完即弃的环境）。
 只用 yfinance 免费数据，不碰 IBKR，不下单。去重靠 state/sent_<日期>.json：
 同一只票当天首次触发才发，连续满足不重复刷屏；掉出后重新满足会再发。
 
 用法:
-    python scan.py            # 扫描并发飞机，更新去重记录
-    python scan.py --dry-run  # 只打印，不发飞机、不写去重、跳过时段检查（测试用）
+    python scan.py            # 扫描并发 Telegram，更新去重记录
+    python scan.py --dry-run  # 只打印，不发 Telegram、不写去重、跳过时段检查（测试用）
 """
 from __future__ import annotations
 
@@ -106,7 +106,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--selftest", action="store_true",
-                        help="只从云端发一条测试飞机确认连通，不扫描、不发信号")
+                        help="只从云端发一条 Telegram 测试消息确认连通，不扫描、不发信号")
     args = parser.parse_args()
 
     if args.selftest:
@@ -153,7 +153,10 @@ def main() -> int:
                 f"现价 {sig['price']} · 数据 yfinance(约延迟15分) · 下单前核对券商实时价")
         print(f"  [信号] {sym}: 限价{sig['entry_limit']} 止损{sig['stop']} {sig['size']}股")
         if not args.dry_run:
-            notify(f"买入信号 {sym}", body, "high")
+            delivered = notify(f"买入信号 {sym}", body, "high")
+            if not delivered:
+                print(f"  ! {sym}: Telegram 发送失败，未写入今日去重，下一轮会重试")
+                continue
         sent.add(sym)
         new_signals += 1
 
